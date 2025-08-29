@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>錯誤處理測試</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-section p {
+            margin-bottom: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .test-section ol {
+            margin-left: 20px;
+            color: #666;
+        }
+        .test-section ol li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .test-button {
+            margin: 8px 5px;
+            padding: 12px 18px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .test-button:hover {
+            background-color: #005a9e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .test-button:active {
+            transform: translateY(0);
+        }
+        
+        /* 錯誤顯示區域標題 */
+        .error-display-title {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Power BI 錯誤處理測試</h1>
+        
+        <div class="test-section">
+            <h2>📋 使用說明</h2>
+            <p><strong>這個頁面用來測試 Power BI 報表的各種錯誤處理情況：</strong></p>
+            <ol>
+                <li>點擊下方的測試按鈕，會在下面的區域顯示對應的錯誤訊息</li>
+                <li>每種錯誤都會顯示不同的訊息和操作按鈕</li>
+                <li>可以測試重試功能和錯誤恢復機制</li>
+                <li>打開瀏覽器的開發者工具 (F12) 可以看到詳細的測試日誌</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 錯誤類型測試</h2>
+            <p>點擊按鈕模擬不同類型的載入錯誤：</p>
+            <button class="test-button" onclick="testNetworkError()">🌐 網路錯誤</button>
+            <button class="test-button" onclick="testTimeoutError()">⏰ 載入超時</button>
+            <button class="test-button" onclick="testPermissionError()">🔒 權限錯誤</button>
+            <button class="test-button" onclick="testUnknownError()">❓ 未知錯誤</button>
+        </div>
+
+        <div class="test-section">
+            <h2>⚙️ 功能測試</h2>
+            <p>測試錯誤處理的各種功能：</p>
+            <button class="test-button" onclick="testRetryMechanism()">🔄 重試機制</button>
+            <button class="test-button" onclick="testNetworkStatusChange()">📶 網路狀態變化</button>
+            <button class="test-button" onclick="resetErrorState()">🧹 清除錯誤</button>
+            <button class="test-button" onclick="runAutoTest()">🤖 自動測試</button>
+        </div>
+
+        <div class="error-display-title">
+            📺 錯誤訊息顯示區域 (點擊上方按鈕後會在這裡顯示錯誤)
+        </div>
+        
+        <!-- 模擬 Power BI 內容區域 -->
+        <div class="content-container">
+            <div class="tab-content active" id="powerbi">
+                <iframe class="powerbi-frame" src="about:blank" frameborder="0" style="opacity: 0.3;"></iframe>
+                <div class="error-message" style="display: none;">
+                    <!-- 錯誤內容將由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="error-handling-test.js"></script>
+    <script>
+        // 測試函數
+        function testNetworkError() {
+            console.log('測試網路錯誤');
+            handlePowerBIError('網路連線錯誤：請檢查您的網路連線狀態', errorState.errorTypes.NETWORK_ERROR);
+        }
+
+        function testTimeoutError() {
+            console.log('測試超時錯誤');
+            handlePowerBIError('載入超時：Power BI 報表載入時間過長', errorState.errorTypes.TIMEOUT_ERROR);
+        }
+
+        function testPermissionError() {
+            console.log('測試權限錯誤');
+            handlePowerBIError('權限錯誤：無法存取 Power BI 報表', errorState.errorTypes.PERMISSION_ERROR);
+        }
+
+        function testUnknownError() {
+            console.log('測試未知錯誤');
+            handlePowerBIError('未知錯誤：發生了預期外的問題', errorState.errorTypes.UNKNOWN_ERROR);
+        }
+
+        function testRetryMechanism() {
+            console.log('測試重試機制');
+            errorState.currentAttempt = 2; // 模擬已經嘗試過
+            retryPowerBILoad();
+        }
+
+        function testNetworkStatusChange() {
+            console.log('測試網路狀態變化');
+            // 模擬網路斷線
+            handleNetworkDisconnect();
+            
+            // 3秒後模擬網路重連
+            setTimeout(() => {
+                handleNetworkReconnect();
+            }, 3000);
+        }
+
+        function resetErrorState() {
+            console.log('重置錯誤狀態');
+            errorState.currentAttempt = 0;
+            errorState.lastError = null;
+            tabState.powerBILoaded = false;
+            
+            // 隱藏錯誤訊息
+            const errorMessage = document.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+            
+            // 顯示 iframe
+            const powerBIFrame = document.querySelector('.powerbi-frame');
+            if (powerBIFrame) {
+                powerBIFrame.style.opacity = '1';
+            }
+            
+            alert('✅ 錯誤狀態已重置！');
+            console.log('錯誤狀態已重置');
+        }
+
+        function runAutoTest() {
+            alert('🤖 開始自動測試，請查看瀏覽器控制台 (F12) 看測試結果');
+            console.log('🚀 開始自動測試所有錯誤處理功能...');
+            
+            // 執行自動測試
+            if (typeof runAllTests === 'function') {
+                runAllTests();
+            } else {
+                console.error('自動測試函數不可用');
+            }
+        }
+
+        // 初始化測試環境
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('錯誤處理測試頁面已載入');
+            console.log('可用的錯誤類型:', errorState.errorTypes);
+            console.log('Power BI 設定:', powerBIConfig);
+        });
+    </script>
+</body>
+</html>

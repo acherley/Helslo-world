@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI 功能測試</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Power BI 嵌入功能測試</h1>
+        
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="welcome">歡迎</button>
+                <button class="tab-button" data-tab="powerbi">Power BI 報表</button>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="tab-content active" id="welcome">
+                <h2>測試說明</h2>
+                <p>點擊 "Power BI 報表" 標籤頁來測試報表嵌入功能。</p>
+                <p>現在使用 60 秒的載入超時時間，應該能正常載入 Power BI 報表。</p>
+                <p><strong>修正內容：</strong></p>
+                <ul>
+                    <li>增加載入超時時間從 10 秒到 60 秒</li>
+                    <li>恢復 iframe 的原始 src URL</li>
+                    <li>簡化載入邏輯，避免重複設定 src</li>
+                    <li>增加載入成功後的延遲確保內容完全載入</li>
+                    <li><strong>新增：</strong>載入動畫現在會覆蓋整個 Power BI 區域</li>
+                    <li><strong>新增：</strong>載入完成後動畫會正確隱藏，iframe 會淡入顯示</li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="powerbi">
+                <iframe class="powerbi-frame" 
+                        src="https://app.powerbi.com/reportEmbed?reportId=d79fa9cc-0415-4121-87eb-f3635d9f13c4&autoAuth=true&ctid=305675df-dc39-4b66-8034-b8e7a8cb798c&filterPaneEnabled=false&language=en&formatlocale=en-US"
+                        frameborder="0" 
+                        allowFullScreen="true"
+                        allow="fullscreen"
+                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+                </iframe>
+                <div class="error-message" style="display: none;">
+                    <p>無法載入 Power BI 報表。請檢查網路連線或聯絡系統管理員。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <script>
+        // 測試 Power BI 功能
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Power BI 測試頁面載入完成');
+            console.log('載入超時時間:', powerBIConfig.loadTimeout / 1000, '秒');
+        });
+    </script>
+</body>
+</html>

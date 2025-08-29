@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>響應式設計測試 - 報表儀表板</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 測試工具樣式 */
+        .test-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        
+        .test-controls h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .test-controls button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: #007acc;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .test-controls button:hover {
+            background: #005a9e;
+        }
+        
+        .test-info {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #555;
+        }
+        
+        .test-info div {
+            margin: 3px 0;
+        }
+        
+        /* 響應式測試框架 */
+        .responsive-test-frame {
+            transition: all 0.3s ease;
+            border: 2px solid #007acc;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .test-mode-desktop { width: 1200px; }
+        .test-mode-laptop { width: 992px; }
+        .test-mode-tablet { width: 768px; }
+        .test-mode-mobile { width: 375px; }
+        .test-mode-small { width: 320px; }
+    </style>
+</head>
+
+<body>
+    <!-- 測試控制面板 -->
+    <div class="test-controls">
+        <h4>響應式測試工具</h4>
+        <button onclick="setTestMode('full')">完整螢幕</button>
+        <button onclick="setTestMode('desktop')">桌面 (1200px)</button>
+        <button onclick="setTestMode('laptop')">筆電 (992px)</button>
+        <button onclick="setTestMode('tablet')">平板 (768px)</button>
+        <button onclick="setTestMode('mobile')">手機 (375px)</button>
+        <button onclick="setTestMode('small')">小手機 (320px)</button>
+        
+        <div class="test-info">
+            <div>當前斷點: <span id="current-breakpoint">-</span></div>
+            <div>視窗寬度: <span id="window-width">-</span>px</div>
+            <div>視窗高度: <span id="window-height">-</span>px</div>
+            <div>裝置類型: <span id="device-type">-</span></div>
+        </div>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="responsive-test-frame" id="testFrame">
+        <div class="container">
+            <!-- 標籤頁導航區域 -->
+            <div class="tab-container">
+                <div class="tab-nav">
+                    <button class="tab-button active" data-tab="welcome">歡迎</button>
+                    <button class="tab-button" data-tab="powerbi">Power BI 報表</button>
+                </div>
+            </div>
+
+            <!-- 內容顯示區域 -->
+            <div class="content-container">
+                <!-- 歡迎頁面內容 -->
+                <div class="tab-content active" id="welcome">
+                    <div class="welcome-content">
+                        <h1 class="welcome-title">歡迎使用報表儀表板</h1>
+                        <div class="welcome-description">
+                            <p class="welcome-intro">這是您的資料分析中心，提供強大的商業智慧工具來協助您做出明智的決策。</p>
+                            <p class="welcome-instruction">請點擊上方的「Power BI 報表」標籤頁來查看詳細的資料分析和視覺化內容。</p>
+                        </div>
+                        <div class="welcome-features">
+                            <h2 class="features-title">功能特色</h2>
+                            <ul class="features-list">
+                                <li>互動式資料視覺化</li>
+                                <li>即時資料更新</li>
+                                <li>多維度資料分析</li>
+                                <li>響應式設計，支援各種裝置</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Power BI 報表內容 -->
+                <div class="tab-content" id="powerbi">
+                    <div style="background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; height: 400px; border-radius: 8px;">
+                        <div style="text-align: center; color: #666;">
+                            <h3>Power BI 報表預覽區域</h3>
+                            <p>這裡會顯示 Power BI 報表</p>
+                            <p>尺寸會根據螢幕大小自動調整</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="test-responsive-features.js"></script>
+    <script>
+        // 測試工具腳本
+        let currentTestMode = 'full';
+        
+        function setTestMode(mode) {
+            const testFrame = document.getElementById('testFrame');
+            currentTestMode = mode;
+            
+            // 移除所有測試模式類別
+            testFrame.className = 'responsive-test-frame';
+            
+            if (mode !== 'full') {
+                testFrame.classList.add(`test-mode-${mode}`);
+            }
+            
+            // 觸發視窗大小變化事件
+            setTimeout(() => {
+                if (typeof handleWindowResize === 'function') {
+                    handleWindowResize();
+                }
+                updateTestInfo();
+            }, 100);
+        }
+        
+        function updateTestInfo() {
+            const breakpoint = getCurrentBreakpoint ? getCurrentBreakpoint() : 'unknown';
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            let deviceType = 'unknown';
+            if (typeof isMobileDevice === 'function' && isMobileDevice()) {
+                deviceType = '手機';
+            } else if (typeof isTabletDevice === 'function' && isTabletDevice()) {
+                deviceType = '平板';
+            } else if (typeof isDesktopDevice === 'function' && isDesktopDevice()) {
+                deviceType = '桌面';
+            }
+            
+            document.getElementById('current-breakpoint').textContent = breakpoint;
+            document.getElementById('window-width').textContent = width;
+            document.getElementById('window-height').textContent = height;
+            document.getElementById('device-type').textContent = deviceType;
+        }
+        
+        // 監聽視窗大小變化
+        window.addEventListener('resize', updateTestInfo);
+        
+        // 初始化測試資訊
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateTestInfo, 500);
+        });
+        
+        // 每秒更新一次測試資訊
+        setInterval(updateTestInfo, 1000);
+    </script>
+</body>
+
+</html>

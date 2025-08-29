@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>整合測試 - 標籤頁 Power BI 網頁應用程式</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            min-width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .test-panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #4CAF50;
+        }
+        
+        .test-section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .test-section:last-child {
+            border-bottom: none;
+        }
+        
+        .test-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            color: #FFC107;
+        }
+        
+        .test-button {
+            display: inline-block;
+            margin: 3px 5px 3px 0;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #007acc;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .test-button:hover {
+            background: #005a9e;
+        }
+        
+        .test-button.success {
+            background: #4CAF50;
+        }
+        
+        .test-button.error {
+            background: #f44336;
+        }
+        
+        .test-status {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        .test-status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .test-status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .test-status.info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+        }
+        
+        .test-results {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        .toggle-panel {
+            position: fixed;
+            top: 10px;
+            right: 320px;
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <!-- 測試面板切換按鈕 -->
+    <button class="toggle-panel" onclick="toggleTestPanel()">切換測試面板</button>
+    
+    <!-- 整合測試控制面板 -->
+    <div class="test-panel" id="testPanel">
+        <h3>🧪 整合測試控制台</h3>
+        
+        <div class="test-section">
+            <h4>基本功能測試</h4>
+            <button class="test-button" onclick="testTabSwitching()">標籤頁切換</button>
+            <button class="test-button" onclick="testInitialState()">初始狀態</button>
+            <button class="test-button" onclick="testDOMStructure()">DOM 結構</button>
+        </div>
+        
+        <div class="test-section">
+            <h4>Power BI 功能測試</h4>
+            <button class="test-button" onclick="testPowerBILoading()">載入測試</button>
+            <button class="test-button" onclick="testErrorHandling()">錯誤處理</button>
+            <button class="test-button" onclick="testRetryMechanism()">重試機制</button>
+        </div>
+        
+        <div class="test-section">
+            <h4>響應式設計測試</h4>
+            <button class="test-button" onclick="testResponsiveBreakpoints()">斷點檢測</button>
+            <button class="test-button" onclick="testDeviceDetection()">裝置檢測</button>
+            <button class="test-button" onclick="testLayoutAdjustment()">佈局調整</button>
+        </div>
+        
+        <div class="test-section">
+            <h4>跨瀏覽器測試</h4>
+            <button class="test-button" onclick="testBrowserCompatibility()">相容性檢查</button>
+            <button class="test-button" onclick="testJavaScriptFeatures()">JS 功能檢查</button>
+            <button class="test-button" onclick="testCSSFeatures()">CSS 功能檢查</button>
+        </div>
+        
+        <div class="test-section">
+            <h4>完整流程測試</h4>
+            <button class="test-button" onclick="runFullIntegrationTest()">完整整合測試</button>
+            <button class="test-button" onclick="runPerformanceTest()">效能測試</button>
+            <button class="test-button" onclick="clearTestResults()">清除結果</button>
+        </div>
+        
+        <div class="test-results" id="testResults">
+            <strong>測試結果將顯示在這裡</strong>
+        </div>
+    </div>
+
+    <!-- 主要應用程式內容 -->
+    <div class="container">
+        <!-- 標籤頁導航區域 -->
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="welcome">歡迎</button>
+                <button class="tab-button" data-tab="powerbi">Power BI 報表</button>
+            </div>
+        </div>
+
+        <!-- 內容顯示區域 -->
+        <div class="content-container">
+            <!-- 歡迎頁面內容 -->
+            <div class="tab-content active" id="welcome">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">歡迎使用報表儀表板</h1>
+                    <div class="welcome-description">
+                        <p class="welcome-intro">這是您的資料分析中心，提供強大的商業智慧工具來協助您做出明智的決策。</p>
+                        <p class="welcome-instruction">請點擊上方的「Power BI 報表」標籤頁來查看詳細的資料分析和視覺化內容。</p>
+                    </div>
+                    <div class="welcome-features">
+                        <h2 class="features-title">功能特色</h2>
+                        <ul class="features-list">
+                            <li>互動式資料視覺化</li>
+                            <li>即時資料更新</li>
+                            <li>多維度資料分析</li>
+                            <li>響應式設計，支援各種裝置</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Power BI 報表內容 -->
+            <div class="tab-content" id="powerbi">
+                <iframe class="powerbi-frame"
+                    src="https://app.powerbi.com/reportEmbed?reportId=d79fa9cc-0415-4121-87eb-f3635d9f13c4&autoAuth=true&ctid=305675df-dc39-4b66-8034-b8e7a8cb798c&filterPaneEnabled=false&language=en&formatlocale=en-US"
+                    frameborder="0" allowFullScreen="true" allow="fullscreen"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+                </iframe>
+                <div class="error-message" style="display: none;">
+                    <!-- 錯誤內容將由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 整合測試腳本
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            tests: []
+        };
+
+        function logTest(testName, passed, details = '') {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+                console.log(`✅ ${testName}: 通過 ${details}`);
+            } else {
+                testResults.failed++;
+                console.log(`❌ ${testName}: 失敗 ${details}`);
+            }
+            testResults.tests.push({ name: testName, passed, details });
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const resultsDiv = document.getElementById('testResults');
+            const successRate = testResults.total > 0 ? ((testResults.passed / testResults.total) * 100).toFixed(1) : 0;
+            
+            resultsDiv.innerHTML = `
+                <strong>測試統計</strong><br>
+                總計: ${testResults.total} | 通過: ${testResults.passed} | 失敗: ${testResults.failed}<br>
+                成功率: ${successRate}%<br><br>
+                <strong>最近測試:</strong><br>
+                ${testResults.tests.slice(-5).map(test => 
+                    `${test.passed ? '✅' : '❌'} ${test.name}`
+                ).join('<br>')}
+            `;
+        }
+
+        // 基本功能測試
+        function testTabSwitching() {
+            console.log('🧪 測試標籤頁切換功能...');
+            
+            // 測試切換到 Power BI 標籤頁
+            switchTab('powerbi');
+            const powerbiActive = getCurrentTab() === 'powerbi';
+            logTest('切換到 Power BI 標籤頁', powerbiActive);
+            
+            // 測試切換回歡迎標籤頁
+            switchTab('welcome');
+            const welcomeActive = getCurrentTab() === 'welcome';
+            logTest('切換回歡迎標籤頁', welcomeActive);
+            
+            // 測試無效標籤頁
+            const beforeInvalid = getCurrentTab();
+            switchTab('invalid');
+            const afterInvalid = getCurrentTab();
+            logTest('無效標籤頁處理', beforeInvalid === afterInvalid);
+        }
+
+        function testInitialState() {
+            console.log('🧪 測試初始狀態...');
+            
+            // 重新初始化
+            initializeTabs();
+            
+            const initialTab = getCurrentTab();
+            logTest('初始標籤頁為歡迎頁', initialTab === 'welcome');
+            
+            const welcomeButton = document.querySelector('[data-tab="welcome"]');
+            const powerbiButton = document.querySelector('[data-tab="powerbi"]');
+            
+            logTest('歡迎按鈕有 active 類別', welcomeButton && welcomeButton.classList.contains('active'));
+            logTest('Power BI 按鈕沒有 active 類別', powerbiButton && !powerbiButton.classList.contains('active'));
+        }
+
+        function testDOMStructure() {
+            console.log('🧪 測試 DOM 結構...');
+            
+            const requiredElements = [
+                '.container',
+                '.tab-container',
+                '.tab-nav',
+                '.tab-button[data-tab="welcome"]',
+                '.tab-button[data-tab="powerbi"]',
+                '.content-container',
+                '#welcome',
+                '#powerbi',
+                '.powerbi-frame',
+                '.error-message'
+            ];
+            
+            requiredElements.forEach(selector => {
+                const element = document.querySelector(selector);
+                logTest(`DOM 元素存在: ${selector}`, !!element);
+            });
+        }
+
+        // Power BI 功能測試
+        function testPowerBILoading() {
+            console.log('🧪 測試 Power BI 載入功能...');
+            
+            // 檢查 Power BI 設定
+            logTest('Power BI 設定存在', !!powerBIConfig);
+            logTest('Power BI URL 正確', powerBIConfig && powerBIConfig.embedUrl.includes('powerbi.com'));
+            
+            // 檢查載入處理函數
+            logTest('載入處理函數存在', typeof setupPowerBILoadingHandlers === 'function');
+            logTest('載入成功處理函數存在', typeof handlePowerBILoadSuccess === 'function');
+            logTest('內容驗證函數存在', typeof validatePowerBIContent === 'function');
+        }
+
+        function testErrorHandling() {
+            console.log('🧪 測試錯誤處理功能...');
+            
+            // 檢查錯誤狀態
+            logTest('錯誤狀態物件存在', !!errorState);
+            logTest('錯誤類型定義完整', errorState && Object.keys(errorState.errorTypes).length === 4);
+            
+            // 檢查錯誤處理函數
+            logTest('錯誤處理函數存在', typeof handlePowerBIError === 'function');
+            logTest('錯誤訊息建立函數存在', typeof createErrorMessageContent === 'function');
+            logTest('重試處理函數存在', typeof handleRetryClick === 'function');
+            
+            // 測試錯誤訊息建立
+            try {
+                const errorContent = createErrorMessageContent('測試錯誤', errorState.errorTypes.NETWORK_ERROR);
+                logTest('錯誤訊息建立功能', errorContent && errorContent.includes('測試錯誤'));
+            } catch (e) {
+                logTest('錯誤訊息建立功能', false, e.message);
+            }
+        }
+
+        function testRetryMechanism() {
+            console.log('🧪 測試重試機制...');
+            
+            logTest('重試載入函數存在', typeof retryPowerBILoad === 'function');
+            logTest('載入超時處理函數存在', typeof handleLoadTimeout === 'function');
+            logTest('重試訊息顯示函數存在', typeof showRetryMessage === 'function');
+            
+            // 檢查重試設定
+            logTest('重試次數設定正確', powerBIConfig && powerBIConfig.retryAttempts === 3);
+            logTest('重試延遲設定正確', powerBIConfig && powerBIConfig.retryDelay === 2000);
+        }
+
+        // 響應式設計測試
+        function testResponsiveBreakpoints() {
+            console.log('🧪 測試響應式斷點...');
+            
+            logTest('斷點檢測函數存在', typeof getCurrentBreakpoint === 'function');
+            
+            // 測試不同寬度的斷點檢測
+            const originalWidth = window.innerWidth;
+            
+            const testCases = [
+                { width: 1400, expected: 'xl' },
+                { width: 1000, expected: 'lg' },
+                { width: 800, expected: 'md' },
+                { width: 600, expected: 'sm' },
+                { width: 400, expected: 'xs' },
+                { width: 300, expected: 'xxs' }
+            ];
+            
+            testCases.forEach(testCase => {
+                // 模擬視窗寬度變化
+                Object.defineProperty(window, 'innerWidth', {
+                    writable: true,
+                    configurable: true,
+                    value: testCase.width
+                });
+                
+                const result = getCurrentBreakpoint();
+                logTest(`斷點檢測 ${testCase.width}px`, result === testCase.expected, `預期: ${testCase.expected}, 實際: ${result}`);
+            });
+            
+            // 恢復原始寬度
+            Object.defineProperty(window, 'innerWidth', {
+                writable: true,
+                configurable: true,
+                value: originalWidth
+            });
+        }
+
+        function testDeviceDetection() {
+            console.log('🧪 測試裝置檢測...');
+            
+            logTest('手機裝置檢測函數存在', typeof isMobileDevice === 'function');
+            logTest('平板裝置檢測函數存在', typeof isTabletDevice === 'function');
+            logTest('桌面裝置檢測函數存在', typeof isDesktopDevice === 'function');
+            
+            // 測試當前裝置檢測
+            try {
+                const isMobile = isMobileDevice();
+                const isTablet = isTabletDevice();
+                const isDesktop = isDesktopDevice();
+                
+                // 確保只有一種裝置類型為 true
+                const deviceCount = [isMobile, isTablet, isDesktop].filter(Boolean).length;
+                logTest('裝置類型唯一性', deviceCount === 1, `檢測到 ${deviceCount} 種裝置類型`);
+            } catch (e) {
+                logTest('裝置檢測功能', false, e.message);
+            }
+        }
+
+        function testLayoutAdjustment() {
+            console.log('🧪 測試佈局調整...');
+            
+            logTest('佈局調整函數存在', typeof adjustLayoutForBreakpoint === 'function');
+            logTest('Power BI 尺寸調整函數存在', typeof adjustPowerBIFrameSize === 'function');
+            logTest('視窗大小變化處理函數存在', typeof handleWindowResize === 'function');
+            
+            // 測試佈局調整
+            try {
+                adjustLayoutForBreakpoint('md');
+                logTest('佈局調整執行', true);
+            } catch (e) {
+                logTest('佈局調整執行', false, e.message);
+            }
+        }
+
+        // 跨瀏覽器相容性測試
+        function testBrowserCompatibility() {
+            console.log('🧪 測試瀏覽器相容性...');
+            
+            // 檢查基本 API 支援
+            logTest('querySelector 支援', typeof document.querySelector === 'function');
+            logTest('addEventListener 支援', typeof document.addEventListener === 'function');
+            logTest('classList 支援', 'classList' in document.createElement('div'));
+            logTest('JSON 支援', typeof JSON !== 'undefined');
+            logTest('localStorage 支援', typeof localStorage !== 'undefined');
+            
+            // 檢查 ES6 功能
+            logTest('const/let 支援', true); // 如果能執行到這裡就表示支援
+            logTest('箭頭函數支援', typeof (() => {}) === 'function');
+            logTest('Promise 支援', typeof Promise !== 'undefined');
+        }
+
+        function testJavaScriptFeatures() {
+            console.log('🧪 測試 JavaScript 功能...');
+            
+            // 檢查核心函數
+            const coreFunctions = [
+                'initializeTabs',
+                'switchTab',
+                'getCurrentTab',
+                'isActiveTab',
+                'handlePowerBITabSwitch',
+                'setupPowerBILoadingHandlers',
+                'handlePowerBIError',
+                'initializeResponsiveHandlers'
+            ];
+            
+            coreFunctions.forEach(funcName => {
+                logTest(`函數存在: ${funcName}`, typeof window[funcName] === 'function');
+            });
+            
+            // 檢查全域物件
+            logTest('tabState 物件存在', typeof tabState !== 'undefined');
+            logTest('powerBIConfig 物件存在', typeof powerBIConfig !== 'undefined');
+            logTest('errorState 物件存在', typeof errorState !== 'undefined');
+        }
+
+        function testCSSFeatures() {
+            console.log('🧪 測試 CSS 功能...');
+            
+            // 檢查 CSS 功能支援
+            const testDiv = document.createElement('div');
+            document.body.appendChild(testDiv);
+            
+            // 檢查 Flexbox 支援
+            testDiv.style.display = 'flex';
+            logTest('Flexbox 支援', testDiv.style.display === 'flex');
+            
+            // 檢查 Grid 支援
+            testDiv.style.display = 'grid';
+            logTest('CSS Grid 支援', testDiv.style.display === 'grid');
+            
+            // 檢查 Transform 支援
+            testDiv.style.transform = 'translateX(10px)';
+            logTest('CSS Transform 支援', testDiv.style.transform.includes('translateX'));
+            
+            // 檢查 Transition 支援
+            testDiv.style.transition = 'all 0.3s ease';
+            logTest('CSS Transition 支援', testDiv.style.transition.includes('0.3s'));
+            
+            document.body.removeChild(testDiv);
+        }
+
+        // 完整整合測試
+        function runFullIntegrationTest() {
+            console.log('🚀 開始完整整合測試...');
+            
+            // 清除之前的結果
+            testResults = { total: 0, passed: 0, failed: 0, tests: [] };
+            
+            // 執行所有測試
+            testInitialState();
+            testDOMStructure();
+            testTabSwitching();
+            testPowerBILoading();
+            testErrorHandling();
+            testRetryMechanism();
+            testResponsiveBreakpoints();
+            testDeviceDetection();
+            testLayoutAdjustment();
+            testBrowserCompatibility();
+            testJavaScriptFeatures();
+            testCSSFeatures();
+            
+            // 顯示最終結果
+            const successRate = ((testResults.passed / testResults.total) * 100).toFixed(1);
+            console.log(`\n📊 整合測試完成！`);
+            console.log(`總計: ${testResults.total} 項測試`);
+            console.log(`通過: ${testResults.passed} 項`);
+            console.log(`失敗: ${testResults.failed} 項`);
+            console.log(`成功率: ${successRate}%`);
+            
+            if (testResults.failed > 0) {
+                console.log('\n❌ 失敗的測試:');
+                testResults.tests.filter(test => !test.passed).forEach(test => {
+                    console.log(`  - ${test.name}: ${test.details}`);
+                });
+            }
+        }
+
+        function runPerformanceTest() {
+            console.log('🧪 執行效能測試...');
+            
+            const startTime = performance.now();
+            
+            // 測試標籤頁切換效能
+            const switchStart = performance.now();
+            for (let i = 0; i < 100; i++) {
+                switchTab(i % 2 === 0 ? 'welcome' : 'powerbi');
+            }
+            const switchEnd = performance.now();
+            const switchTime = switchEnd - switchStart;
+            
+            logTest('標籤頁切換效能', switchTime < 1000, `100次切換耗時: ${switchTime.toFixed(2)}ms`);
+            
+            // 測試響應式調整效能
+            const resizeStart = performance.now();
+            for (let i = 0; i < 50; i++) {
+                handleWindowResize();
+            }
+            const resizeEnd = performance.now();
+            const resizeTime = resizeEnd - resizeStart;
+            
+            logTest('響應式調整效能', resizeTime < 500, `50次調整耗時: ${resizeTime.toFixed(2)}ms`);
+            
+            const totalTime = performance.now() - startTime;
+            logTest('總體效能', totalTime < 2000, `總耗時: ${totalTime.toFixed(2)}ms`);
+        }
+
+        function clearTestResults() {
+            testResults = { total: 0, passed: 0, failed: 0, tests: [] };
+            updateTestDisplay();
+            console.clear();
+            console.log('🧹 測試結果已清除');
+        }
+
+        function toggleTestPanel() {
+            const panel = document.getElementById('testPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 整合測試頁面已載入');
+            console.log('使用右上角的測試面板來執行各種測試');
+            updateTestDisplay();
+        });
+    </script>
+</body>
+</html>

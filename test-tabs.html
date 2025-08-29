@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>標籤頁功能測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e2e3e5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>標籤頁功能單元測試</h1>
+    <div id="test-results"></div>
+    <div id="test-summary"></div>
+
+    <!-- 模擬的 HTML 結構用於測試 -->
+    <div style="display: none;">
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="welcome">歡迎</button>
+                <button class="tab-button" data-tab="powerbi">Power BI 報表</button>
+            </div>
+        </div>
+        <div class="content-container">
+            <div class="tab-content active" id="welcome">
+                <h1>歡迎使用報表儀表板</h1>
+            </div>
+            <div class="tab-content" id="powerbi">
+                <iframe class="powerbi-frame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 測試框架
+        class TabTestSuite {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+            }
+
+            addTest(name, testFunction) {
+                this.tests.push({ name, testFunction });
+            }
+
+            async runTests() {
+                console.log('開始執行標籤頁功能測試...');
+                
+                for (const test of this.tests) {
+                    try {
+                        const result = await test.testFunction();
+                        this.results.push({
+                            name: test.name,
+                            passed: result,
+                            error: null
+                        });
+                        console.log(`✓ ${test.name}: ${result ? '通過' : '失敗'}`);
+                    } catch (error) {
+                        this.results.push({
+                            name: test.name,
+                            passed: false,
+                            error: error.message
+                        });
+                        console.log(`✗ ${test.name}: 錯誤 - ${error.message}`);
+                    }
+                }
+
+                this.displayResults();
+            }
+
+            displayResults() {
+                const resultsDiv = document.getElementById('test-results');
+                const summaryDiv = document.getElementById('test-summary');
+                
+                let html = '';
+                let passCount = 0;
+                
+                this.results.forEach(result => {
+                    const className = result.passed ? 'test-pass' : 'test-fail';
+                    const status = result.passed ? '✓ 通過' : '✗ 失敗';
+                    const errorMsg = result.error ? ` - ${result.error}` : '';
+                    
+                    html += `<div class="test-result ${className}">
+                        <strong>${result.name}</strong>: ${status}${errorMsg}
+                    </div>`;
+                    
+                    if (result.passed) passCount++;
+                });
+                
+                resultsDiv.innerHTML = html;
+                
+                const totalTests = this.results.length;
+                const failCount = totalTests - passCount;
+                
+                summaryDiv.innerHTML = `
+                    <div class="test-summary">
+                        <h3>測試摘要</h3>
+                        <p>總測試數: ${totalTests}</p>
+                        <p>通過: ${passCount}</p>
+                        <p>失敗: ${failCount}</p>
+                        <p>成功率: ${((passCount / totalTests) * 100).toFixed(1)}%</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 建立測試套件
+        const testSuite = new TabTestSuite();
+
+        // 測試 1: 檢查初始狀態
+        testSuite.addTest('初始狀態檢查', () => {
+            return getCurrentTab() === 'welcome';
+        });
+
+        // 測試 2: 檢查 switchTab 函數
+        testSuite.addTest('switchTab 函數測試', () => {
+            switchTab('powerbi');
+            const result = getCurrentTab() === 'powerbi';
+            switchTab('welcome'); // 重置狀態
+            return result;
+        });
+
+        // 測試 3: 檢查 isActiveTab 函數
+        testSuite.addTest('isActiveTab 函數測試', () => {
+            switchTab('welcome');
+            return isActiveTab('welcome') && !isActiveTab('powerbi');
+        });
+
+        // 測試 4: 檢查無效標籤頁處理
+        testSuite.addTest('無效標籤頁處理測試', () => {
+            const originalTab = getCurrentTab();
+            switchTab('invalid-tab');
+            return getCurrentTab() === originalTab; // 應該保持原狀態
+        });
+
+        // 測試 5: 檢查 DOM 元素更新
+        testSuite.addTest('DOM 元素更新測試', () => {
+            switchTab('powerbi');
+            
+            // 檢查按鈕狀態
+            const welcomeButton = document.querySelector('[data-tab="welcome"]');
+            const powerbiButton = document.querySelector('[data-tab="powerbi"]');
+            
+            const buttonStateCorrect = !welcomeButton.classList.contains('active') && 
+                                     powerbiButton.classList.contains('active');
+            
+            // 檢查內容區域狀態
+            const welcomeContent = document.getElementById('welcome');
+            const powerbiContent = document.getElementById('powerbi');
+            
+            const contentStateCorrect = !welcomeContent.classList.contains('active') && 
+                                      powerbiContent.classList.contains('active');
+            
+            switchTab('welcome'); // 重置狀態
+            return buttonStateCorrect && contentStateCorrect;
+        });
+
+        // 測試 6: 檢查標籤頁狀態物件
+        testSuite.addTest('標籤頁狀態物件測試', () => {
+            return tabState.tabs.includes('welcome') && 
+                   tabState.tabs.includes('powerbi') && 
+                   tabState.tabs.length === 2;
+        });
+
+        // 當頁面載入完成後執行測試
+        document.addEventListener('DOMContentLoaded', () => {
+            // 等待一小段時間確保所有初始化完成
+            setTimeout(() => {
+                testSuite.runTests();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

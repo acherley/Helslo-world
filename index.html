@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>報表儀表板</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- 標籤頁導航區域 -->
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="welcome">歡迎</button>
+                <button class="tab-button" data-tab="powerbi">Power BI 報表</button>
+            </div>
+        </div>
+
+        <!-- 內容顯示區域 -->
+        <div class="content-container">
+            <!-- 歡迎頁面內容 -->
+            <div class="tab-content active" id="welcome">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">歡迎使用報表儀表板</h1>
+                    <div class="welcome-description">
+                        <p class="welcome-intro">這是您的資料分析中心，提供強大的商業智慧工具來協助您做出明智的決策。</p>
+                        <p class="welcome-instruction">請點擊上方的「Power BI 報表」標籤頁來查看詳細的資料分析和視覺化內容。</p>
+                    </div>
+                    <div class="welcome-features">
+                        <h2 class="features-title">功能特色</h2>
+                        <ul class="features-list">
+                            <li>互動式資料視覺化</li>
+                            <li>即時資料更新</li>
+                            <li>多維度資料分析</li>
+                            <li>響應式設計，支援各種裝置</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Power BI 報表內容 -->
+            <div class="tab-content" id="powerbi">
+                <iframe class="powerbi-frame"
+                    src="https://app.powerbi.com/reportEmbed?reportId=d79fa9cc-0415-4121-87eb-f3635d9f13c4&autoAuth=true&ctid=305675df-dc39-4b66-8034-b8e7a8cb798c&filterPaneEnabled=false&language=en&formatlocale=en-US"
+                    frameborder="0" allowFullScreen="true" allow="fullscreen"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+                </iframe>
+                <div class="error-message" style="display: none;">
+                    <!-- 錯誤內容將由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
